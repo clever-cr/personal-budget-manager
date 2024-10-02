@@ -1,11 +1,41 @@
+import { useDispatch } from 'react-redux';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 
 import { DatePicker, Select } from 'antd';
+import { useEffect, useState } from 'react';
+import { formData } from '../types';
+import { addExpense } from '../services/expense/action';
 
 const AddExpense = () => {
+   const dispatch = useDispatch()
+   const [formDatas,setFormDatas] = useState<formData>()
+const [category,setSelectCategory] = useState<string>("")
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// const handleChange = (e:any) =>{
+// setFormDatas(e.target.value)
+// }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handleSubmit =async (event:any) => {
+  event.preventDefault(); 
+
+  const formData = new FormData(event.target); 
+
+  // Get form values
+  const formValues = Object.fromEntries(formData.entries()); 
+  console.log({...formValues,category}); 
+  await addExpense({...formValues,category})(dispatch);
+  event.target.reset(); 
+};
+useEffect(()=>{
+  if (formDatas) {
+    addExpense(formDatas)(dispatch);
+  }
+},[])
+
+console.log("form data--",formDatas)
   const onChange = (value: string) => {
-    console.log(`selected ${value}`);
+    setSelectCategory(value)
   };
 
   const onSearch = (value: string) => {
@@ -16,16 +46,17 @@ const AddExpense = () => {
       <div className="flex flex-col gap-12 items-center-">
         <h1 className="text-2xl font-bold text-center- pb-10">Add expense</h1>
 
-        <div className="flex flex-col gap-8">
+        <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
           <div className="bg-red-400- flex items-center gap-5 ">
             <div className='flex flex-col gap-2'>
               <p>Transaction</p>
-            <Input />
+            <Input  name={'transaction'}/>
             </div>
         <div className='flex flex-col gap-2'>
         <p>Category</p>
         <Select
             className=' w-[400px] px-4- py-2- h-[42px]'
+            
               showSearch
               placeholder="Select a person"
               optionFilterProp="label"
@@ -33,18 +64,11 @@ const AddExpense = () => {
               onSearch={onSearch}
               options={[
                 {
-                  value: 'jack',
-                  label: 'Jack',
-                },
-                {
-                  value: 'lucy',
-                  label: 'Lucy',
-                },
-                {
-                  value: 'tom',
-                  label: 'Tom',
+                  value: 'Food',
+                  label: 'Food',
                 },
               ]}
+     
             />
         </div>
           
@@ -52,15 +76,16 @@ const AddExpense = () => {
           <div className="bg-red-400- flex gap-5">
            <div className='flex flex-col gap-2'>
            <p>Amount</p>
-           <Input />
+           <Input   name={'amount'} />
            </div>
           <div className='flex flex-col gap-2'>
             <p>Date</p>
-          <DatePicker className=" w-[400px] h-[42px]"/>
+          <DatePicker  name="date" className=" w-[400px] h-[42px]"/>
           </div>
           
           </div>
-        </div>
+          <button className='bg-red-500 p-3' type='submit'>Submit</button>
+        </form>
 
         <div className="flex items-center gap-5">
           <Button />
